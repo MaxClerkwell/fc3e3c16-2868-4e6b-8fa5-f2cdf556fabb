@@ -8,20 +8,100 @@
 
 \begin{document}
 
-Jedes Challenge-Blatt beginnt mit einer kurzen Einleitung, die einen Kontext für den jeweiligen Zettel setzt. 
+This worksheet is designed to guide you through setting up GitHub Actions workflows for your C projects. Automating the compilation process helps in identifying errors early and streamlines your development process. You will learn to create workflows for both simple compilation and projects using Makefiles.
+A GitHub workflow is a fancy way of saying: Perform a declared task on a virtual machine. If you configure your worklow correctly you can automate a ton of stuff. The biggest Usecase is for sure to automate testing code. 
+You can find an example project here: \url{https://github.com/PhilippTheSurfer/C-CI_template}
+Please feel free to fork the repository and play around.
 
 \section*{Aufgaben}
 \begin{aufgabe}
-    Löse die Gleichung $x^2 - 5x + 6 = 0$.
+\textbf{Setting Up a Simple Compilation Workflow}
+
+Create a new GitHub repository and add a simple C program. For example, you can use a "Hello, World!" program. 
+
+\textbf{Instructions:}
+\begin{enumerate}
+    \item In your repository, create a directory named \texttt{.github/workflows}.
+    \item Inside this directory, create a file named \texttt{ci.yml}.
+    \item Add the following content to the \texttt{ci.yml} file to set up your workflow:
+\begin{verbatim}
+name: C Compile Workflow
+
+on:
+  push:
+    branch:
+      - main
+
+jobs:
+    build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install GCC
+        run: sudo apt-get update && sudo apt-get install gcc
+    - name: Compile C program
+        run: gcc hello_world.c -o hello_world
+    - name: Run C program
+        run: ./hello_world
+\end{verbatim}
+    \item Adjust the compile command if your file has a different name than \texttt{hello_world.c}.
+    \item Commit and push your changes. GitHub Actions will automatically trigger the workflow on every push to the branch master. If you want to change when the workflow is triggerd just declare a different branchname in the on push section.
+\end{enumerate}
 \end{aufgabe}
 
 \begin{aufgabe}[Für Fortgeschrittene]
-    Beweise den Satz des Pythagoras.
+\textbf{Setting Up a Workflow with Make}
+
+Assuming your project uses a Makefile for build automation, follow these steps to create a workflow that compiles your project using Make.
+\textit{Hint: In my example repository I just reused the makefile provided in the previous paper.}
+
+\textbf{Instructions:}
+\begin{enumerate}
+    \item Ensure your repository contains your C source files and a Makefile.
+    \item In the \texttt{.github/workflows} directory, create a file named \texttt{make.yml}.
+    \item Populate \texttt{make.yml} with the following workflow:
+\begin{verbatim}
+name: Make Build Workflow
+
+on:
+  push:
+    branch:
+      - main
+
+jobs:
+    build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Build Environment
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+    - name: Build Project
+        run: make build
+        working-directory: path/to/your/makefile
+    
+    - name: Install Project
+        run: sudo make install
+        working-directory: path/to/your/makefile
+  
+    - name: Clean Up
+        run: make clean
+        working-directory: path/to/your/makefile
+        
+
+\end{verbatim}
+    \item Replace \texttt{path/to/your/makefile} with the relative path to your Makefile if it's not in the root directory.
+    \item Commit and push the \texttt{make.yml} file to your repository. GitHub Actions will compile your project using Make on each push.
+\end{enumerate}
 \end{aufgabe}
 
-\section*{Anmerkungen}
+\section*{Notes}
 \begin{enumerate}
-    \item Link zu einem YouTube-Video: \url{https://www.youtube.com}
+    \item Remember to check the "Actions" tab in your GitHub repository to see the status and logs of your workflow runs.
+    \item Workflow files are YAML files and are sensitive to indentation. Ensure you use spaces consistently and follow the YAML syntax correctly.
+    \item For more complex projects, you might need to customize your workflows further, such as by adding additional dependencies or setting environment variables.
 \end{enumerate}
 
 \end{document}
