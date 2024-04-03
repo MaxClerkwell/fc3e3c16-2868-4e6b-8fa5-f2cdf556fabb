@@ -1,0 +1,50 @@
+name: Compile LaTeX document and Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+
+    - name: Prepare Filename
+      run: |
+        REPO_NAME="${GITHUB_REPOSITORY##*/}"
+        echo "REPO_TEX_NAME=${REPO_NAME}.tex" >> $GITHUB_ENV
+        echo "REPO_PDF_NAME=${REPO_NAME}.pdf" >> $GITHUB_ENV
+
+    - name: Rename worksheet.tex
+      run: mv worksheet.tex ${{ env.REPO_TEX_NAME }}
+
+    - name: Compile LaTeX Document
+      uses: xu-cheng/latex-action@v2
+      with:
+        root_file: ${{ env.REPO_TEX_NAME }}
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload PDF as Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ env.REPO_PDF_NAME }}
+        asset_name: ${{ env.REPO_PDF_NAME }}
+        asset_content_type: application/pdf

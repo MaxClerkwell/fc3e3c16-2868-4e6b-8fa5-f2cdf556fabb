@@ -1,0 +1,3 @@
+[submodule "dcbl"]
+	path = dcbl
+	url = git@github.com:bjoekeldude/documentclass_challenge-based-learning.git

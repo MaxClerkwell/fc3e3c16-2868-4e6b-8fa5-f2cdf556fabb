@@ -1,0 +1,8 @@
+.vscode/
+*.aux
+*.log
+*.pdf
+*.gz
+*.fdb*
+*.fls
+*.out
